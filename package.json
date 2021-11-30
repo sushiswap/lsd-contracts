@@ -33,6 +33,8 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.0"
+    "@openzeppelin/contracts": "^4.4.0",
+    "@openzeppelin/contracts-legacy": "npm:@openzeppelin/contracts@3.0.2",
+    "ethers-eip712": "^0.2.0"
   }
 }

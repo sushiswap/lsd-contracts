@@ -23,7 +23,43 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.4",
+  solidity:  {
+    compilers: [
+      {
+        version: "0.8.4",
+      }
+    ],
+    overrides: {
+      "contracts/mocks/ERC20.sol": {
+        version: "0.6.12",
+        settings: { },
+      },
+      "@openzeppelin/contracts-legacy/token/ERC20/IERC20.sol": {
+        version: "0.6.12",
+        settings: { },
+      },
+      "@openzeppelin/contracts-legacy/math/SafeMath.sol": {
+        version: "0.6.12",
+        settings: { },
+      },
+      "@openzeppelin/contracts-legacy/GSN/Context.sol": {
+        version: "0.6.12",
+        settings: { },
+      },
+      "contracts/mocks/IERC20.sol": {
+        version: "0.6.12",
+        settings: { },
+      },
+      "contracts/mocks/IMisoToken.sol": {
+        version: "0.6.12",
+        settings: { },
+      },
+      "contracts/mocks/FixedToken.sol": {
+        version: "0.6.12",
+        settings: { },
+      }
+    }
+},
   networks: {
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
