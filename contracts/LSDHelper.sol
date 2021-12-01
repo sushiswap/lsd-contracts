@@ -20,7 +20,7 @@ interface IERC20 {
     ) external;
 }
 
-contract ERC1155Mint is ERC1155 {
+contract ERC1155_ is ERC1155 {
   bytes32 public immutable DOMAIN_SEPARATOR;
   mapping(address => uint256) public nonces;
 
@@ -68,12 +68,12 @@ contract ERC1155Mint is ERC1155 {
 
 contract LSDHelper is ERC1155Receiver {
   IERC20 public immutable token;
-  ERC1155Mint public immutable nft;
+  ERC1155_ public immutable nft;
 
   constructor(address _token, string memory _uri)
   {
     token = IERC20(_token);
-    nft = new ERC1155Mint(address(this), _uri);
+    nft = new ERC1155_(address(this), _uri);
   }
 
   function redeemERC20ForNFT(address redeemer) internal {
