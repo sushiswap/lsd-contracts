@@ -66,7 +66,7 @@ contract ERC1155Mint is ERC1155 {
   }
 }
 
-contract RedeemNFT is ERC1155Receiver {
+contract LSDHelper is ERC1155Receiver {
   IERC20 public immutable token;
   ERC1155Mint public immutable nft;
 
