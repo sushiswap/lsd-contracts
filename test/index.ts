@@ -49,6 +49,51 @@ const signPermitMessage = async (chainId:BigNumber, verifyingContract:Contract, 
   return signer._signTypedData( typedData.domain , typedData.types , typedData.message);
 }
 
+const signPermitMessageERC1155 = async (chainId:BigNumber, verifyingContract:Contract, signer:SignerWithAddress, spender:string, approved:Boolean, deadline:BigNumber) => {
+  const owner = signer.address
+  const nonce = await verifyingContract.nonces(signer.address)
+  
+  const typedData:any = {
+    types: {
+      Permit: [
+        {
+          name: "owner",
+          type: "address"
+        },
+        {
+          name: "spender",
+          type: "address"
+        },
+        {
+          name: "approved",
+          type: "bool"
+        },
+        {
+          name: "nonce",
+          type: "uint256"
+        },
+        {
+          name: "deadline",
+          type: "uint256"
+        }
+      ],
+    },
+    primaryType: 'Permit' as const,
+    domain: {
+      chainId: chainId,
+      verifyingContract: verifyingContract.address,
+    },
+    message: {
+      owner,
+      spender,
+      approved,
+      nonce,
+      deadline
+    }
+  }
+  return signer._signTypedData( typedData.domain , typedData.types , typedData.message);
+}
+
 describe("RedeemNFT", function () {
   before(async function () {
     this.signers = await ethers.getSigners()
@@ -138,11 +183,22 @@ describe("RedeemNFT", function () {
     // Check that Alice's $LSD balance has decreased
     expect(await (await fixedToken.balanceOf(this.alice.address)).toString()).to.equal("290000000000000000000");
 
-    // Approve redeemNFT as a spender of Alice's NFT tokens
-    await erc1155Mint.setApprovalForAll(redeemNFT.address, true);
+    // Signing permit for ERC1155 token
+    const deadlineERC1155 = (await this.alice.provider._internalBlockNumber).respTime + 10000
+
+    const signedPermitMessageERC1155 = await signPermitMessageERC1155(
+        this.alice.provider._network.chainId,
+        erc1155Mint,
+        this.alice,
+        redeemNFT.address,
+        true,
+        deadline
+    );
+
+    const sig = ethers.utils.splitSignature(signedPermitMessageERC1155)
     
     // Redeem the NFT token for $LSD
-    await redeemNFT.redeemNFTForERC20();
+    await redeemNFT.permitAndRedeemNFTForERC20(this.alice.address, redeemNFT.address, true, deadline, sig.v, sig.r, sig.s);
 
     // Check that Alice's ERC1155 balance has decreased
     expect(await (await erc1155Mint.balanceOf(this.alice.address, "0")).toNumber()).to.equal(0);
