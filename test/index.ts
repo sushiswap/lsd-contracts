@@ -58,36 +58,7 @@ describe("RedeemNFT", function () {
     this.dev = this.signers[3]
     this.minter = this.signers[4]
   })
-  it("Redeem w/o permit and check balances", async function () {
-    // Instantiate and deploy Mock $LSD contract
-    const FixedToken = await ethers.getContractFactory("FixedToken");
-    const fixedToken = await FixedToken.deploy();
-    await fixedToken.deployed();
-    await fixedToken["initToken(string,string,address,uint256)"]("Bad Trip", "LSD", this.bob.address, "300000000000000000000");
-
-    // Instantiate and deploy the RedeemNFT contract
-    const RedeemNFT = await ethers.getContractFactory("RedeemNFT");
-    const redeemNFT = await RedeemNFT.deploy(fixedToken.address, "");
-    await redeemNFT.deployed();
-
-    // Approve redeemNFT as a spender of Alice's $LSD tokens
-    await fixedToken.approve(redeemNFT.address, "10000000000000000000");
-
-    // Redeem the $LSD token for NFT
-    await redeemNFT.redeemERC20ForNFT(this.alice.address);
-
-    // Instantiate the already deployed ERC1155 contract
-    const ERC1155Mint = await ethers.getContractFactory("ERC1155Mint");
-    let address = await redeemNFT.nft();
-    const erc1155Mint = await ERC1155Mint.attach(address);
-
-    // Check that Alice's ERC1155 balance has increased
-    expect(await (await erc1155Mint.balanceOf(this.alice.address, "0")).toNumber()).to.equal(10);
-
-    // Check that Alice's $LSD balance has decreased
-    expect(await (await fixedToken.balanceOf(this.alice.address)).toString()).to.equal("290000000000000000000");
-  });
-  it("Redeem w/ permit and check balances", async function () {
+  it("Redeem ERC20 for NFT w/ permit and check balances", async function () {
     // Instantiate and deploy Mock $LSD contract
     const FixedToken = await ethers.getContractFactory("FixedToken");
     const fixedToken = await FixedToken.deploy();
@@ -126,5 +97,57 @@ describe("RedeemNFT", function () {
 
     // Check that Alice's $LSD balance has decreased
     expect(await (await fixedToken.balanceOf(this.alice.address)).toString()).to.equal("290000000000000000000");
+  });
+  it("Redeem NFT for ERC20 and check balances", async function () {
+    // Instantiate and deploy Mock $LSD contract
+    const FixedToken = await ethers.getContractFactory("FixedToken");
+    const fixedToken = await FixedToken.deploy();
+    await fixedToken.deployed();
+    await fixedToken["initToken(string,string,address,uint256)"]("Bad Trip", "LSD", this.bob.address, "300000000000000000000");
+
+    // Instantiate and deploy the RedeemNFT contract
+    const RedeemNFT = await ethers.getContractFactory("RedeemNFT");
+    const redeemNFT = await RedeemNFT.deploy(fixedToken.address, "");
+    await redeemNFT.deployed();
+
+    // Signing permit for $LSD token
+    const deadline = (await this.alice.provider._internalBlockNumber).respTime + 10000
+
+    const signedPermitMessage = await signPermitMessage(
+        this.alice.provider._network.chainId,
+        fixedToken,
+        this.alice,
+        redeemNFT.address,
+        BigNumber.from(("10000000000000000000")),
+        deadline
+    );
+
+    const { v, r, s } = ethers.utils.splitSignature(signedPermitMessage)
+    
+    // Redeem the $LSD token for NFT
+    await redeemNFT.permitAndRedeemERC20ForNFT(this.alice.address, redeemNFT.address, BigNumber.from("10000000000000000000"), deadline, v, r, s);
+
+    // Instantiate the already deployed ERC1155 contract
+    const ERC1155Mint = await ethers.getContractFactory("ERC1155Mint");
+    let address = await redeemNFT.nft();
+    const erc1155Mint = await ERC1155Mint.attach(address);
+
+    // Check that Alice's ERC1155 balance has increased
+    expect(await (await erc1155Mint.balanceOf(this.alice.address, "0")).toNumber()).to.equal(10);
+
+    // Check that Alice's $LSD balance has decreased
+    expect(await (await fixedToken.balanceOf(this.alice.address)).toString()).to.equal("290000000000000000000");
+
+    // Approve redeemNFT as a spender of Alice's NFT tokens
+    await erc1155Mint.setApprovalForAll(redeemNFT.address, true);
+    
+    // Redeem the NFT token for $LSD
+    await redeemNFT.redeemNFTForERC20();
+
+    // Check that Alice's ERC1155 balance has decreased
+    expect(await (await erc1155Mint.balanceOf(this.alice.address, "0")).toNumber()).to.equal(0);
+
+    // Check that Alice's $LSD balance has decreased
+    expect(await (await fixedToken.balanceOf(this.alice.address)).toString()).to.equal("300000000000000000000");
   });
 });
