@@ -187,6 +187,8 @@ const signERC1155Permit = async (chainId:BigNumber, verifyingContract:Contract, 
     },
     primaryType: 'Permit' as const,
     domain: {
+      name: "BadTrip NFT",
+      version: "1",
       chainId: chainId,
       verifyingContract: verifyingContract.address,
     },

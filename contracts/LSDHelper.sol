@@ -33,7 +33,7 @@ contract ERC1155_ is ERC1155 {
     assembly {
         chainId := chainid()
     }
-    DOMAIN_SEPARATOR = keccak256(abi.encode(keccak256("EIP712Domain(uint256 chainId,address verifyingContract)"), chainId, address(this)));
+    DOMAIN_SEPARATOR = keccak256(abi.encode(keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"), keccak256("BadTrip NFT"), keccak256("1"), chainId, address(this)));
     _mint(to, 0, 300, "");
   }
   // See https://eips.ethereum.org/EIPS/eip-191
