@@ -7,3 +7,6 @@ typechain
 #Hardhat files
 cache
 artifacts
+
+/data/uri.json
+.DS_Store

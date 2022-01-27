@@ -5,22 +5,30 @@
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
 
-const redemptionToken = "";
-const uri = "";
+const fs = require('fs');
+const config:any = {};
+
+const readJSON = (dir:string, file:string) => {
+  return new Promise((resolve, reject) => {
+      fs.readFile(dir + "/" + file, 'utf8', (err:string, jsonString:string) => {
+          if (err) {
+              reject(err)
+          }
+          resolve(JSON.parse(jsonString))
+      })
+  })
+}
+const readConfig = async() => {
+  config.token = await readJSON("./data/", "token.json")
+  config.uri = await readJSON("./data/", "uri.json")
+}
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
-
-  // We get the contract to deploy
-  const NFT = await ethers.getContractFactory("NFT");
-  const nft = await NFT.deploy(redemptionToken, uri);
-
-  await nft.deployed();
+    await readConfig()
+    // Instantiate and deploy the LSDHelper contract
+    const LSDHelper = await ethers.getContractFactory("LSDHelper");
+    const lsdHelper = await LSDHelper.deploy(config.token.address, config.uri.uri);
+    await lsdHelper.deployed();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

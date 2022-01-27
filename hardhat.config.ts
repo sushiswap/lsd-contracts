@@ -61,6 +61,9 @@ const config: HardhatUserConfig = {
     }
 },
   networks: {
+    forking: {
+      url: "https://eth-mainnet.alchemyapi.io/v2/<key>",
+    },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
