@@ -70,17 +70,21 @@ contract LSDHelper is ERC1155Receiver {
   IERC20 public immutable token;
   ERC1155_ public immutable nft;
 
+  address BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
+
+  event PhysicalRedemption(address indexed redeemer, uint256 indexed amount);
+
   constructor(address _token, string memory _uri)
   {
     token = IERC20(_token);
     nft = new ERC1155_(address(this), _uri);
   }
 
-  function redeemERC20ForNFT(address redeemer) internal {
-    uint256 balance = token.allowance(redeemer, address(this)) / 10**18;
+  function redeemERC20ForNFT() public {
+    uint256 balance = token.allowance(msg.sender, address(this)) / 10**18;
     require(balance > 0, "Balance of redemption token less than 1");
-    token.transferFrom(redeemer, address(this), balance * 10**18);
-    nft.safeTransferFrom(address(this), redeemer, 0, balance, "");
+    token.transferFrom(msg.sender, address(this), balance * 10**18);
+    nft.safeTransferFrom(address(this), msg.sender, 0, balance, "");
   }
 
   function permitAndRedeemERC20ForNFT(
@@ -93,7 +97,7 @@ contract LSDHelper is ERC1155Receiver {
         bytes32 s
     ) external {
       token.permit(owner, spender, value, deadline, v, r, s);
-      redeemERC20ForNFT(owner);
+      redeemERC20ForNFT();
   }
 
   function permitAndRedeemNFTForERC20(
@@ -109,8 +113,9 @@ contract LSDHelper is ERC1155Receiver {
       redeemNFTForERC20();
   }
 
-  function redeemNFTForERC20() internal {
+  function redeemNFTForERC20() public {
     uint256 nftBalance = nft.balanceOf(msg.sender, 0);
+    require(nftBalance > 0, "Balance of redemption token less than 1");
     nft.safeTransferFrom(msg.sender, address(this), 0, nftBalance, "");
     token.transfer(msg.sender, nftBalance * 10**18);
   }
@@ -133,5 +138,53 @@ contract LSDHelper is ERC1155Receiver {
       bytes calldata data
   ) override external returns (bytes4){
 
+  }
+
+  function permitAndRedeemERC20ForPhysical(
+      address owner,
+      address spender,
+      uint256 value,
+      uint256 deadline,
+      uint8 v,
+      bytes32 r,
+      bytes32 s,
+      uint256 amount
+  ) external {
+    token.permit(owner, spender, value, deadline, v, r, s);
+    redeemERC20ForPhysical(amount);
+  }
+
+  function redeemERC20ForPhysical(uint256 amount) public {
+    uint256 balance = token.allowance(msg.sender, address(this)) / 10**18;
+    require(balance > 0, "Balance of redemption token less than 1");
+    require(amount > 0, "Amount of redemption token less than 1");
+    require(amount <= balance, "Amount of redemption is greater than balance");
+    token.transferFrom(msg.sender, BURN_ADDRESS, amount * 10**18);
+    nft.safeTransferFrom(address(this), BURN_ADDRESS, 0, amount, "");
+    emit PhysicalRedemption(msg.sender, amount);
+  }
+
+  function permitAndRedeemNFTForPhysical(
+        address owner,
+        address spender,
+        bool approved,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s,
+        uint256 amount
+    ) external {
+      nft.permit(owner, spender, approved, deadline, v, r, s);
+      redeemNFTForPhysical(amount);
+  }
+
+  function redeemNFTForPhysical(uint256 amount) public {
+    uint256 nftBalance = nft.balanceOf(msg.sender, 0);
+    require(nftBalance > 0, "Balance of redemption token less than 1");
+    require(amount > 0, "Amount of redemption token less than 1");
+    require(amount <= nftBalance, "Amount of redemption is greater than balance");
+    nft.safeTransferFrom(msg.sender, BURN_ADDRESS, 0, amount, "");
+    token.transfer(BURN_ADDRESS, amount * 10**18);
+    emit PhysicalRedemption(msg.sender, amount);
   }
 }
