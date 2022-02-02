@@ -59,16 +59,22 @@ const config: HardhatUserConfig = {
         settings: { },
       }
     }
-},
+  },
+  defaultNetwork: "hardhat",
   networks: {
-    forking: {
-      url: "https://eth-mainnet.alchemyapi.io/v2/<key>",
+    hardhat: {
+      initialBaseFeePerGas: 0,
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+        blockNumber: 14127849
+      },
     },
     ropsten: {
       url: process.env.ROPSTEN_URL || "",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
