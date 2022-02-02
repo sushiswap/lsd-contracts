@@ -8,25 +8,19 @@ var ipfs = client.create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https'
 
 const metadata = {
 	"name": "Bad Trip",
-	"description": "Lorem ipsum...",
-	"image": "https:\/\/s3.amazonaws.com\/your-bucket\/images\/{id}.png",
+	"description": "The Bad Trip NFT is introduced as a celebratory piece for the announcement and and upcoming release of Sushi's Trident AMM. This NFT can be redeemed for a 19cm x 19cm 900 tab piece of blotter paper with this Chewy Stoll artwork printed on it.",
+	"image": "",
 	"properties": {
-		"simple_property": "example value",
 		"rich_property": {
-			"name": "Name",
-			"value": "123",
-			"display_value": "123 Example Value",
+			"name": "Artist",
+			"value": "Chewy Stoll",
+			"display_value": "Chewy Stoll",
 			"class": "emphasis",
 			"css": {
 				"color": "#ffffff",
 				"font-weight": "bold",
 				"text-decoration": "underline"
 			}
-		},
-		"array_property": {
-			"name": "Name",
-			"value": [1,2,3,4],
-			"class": "emphasis"
 		}
 	}
 }
@@ -56,7 +50,7 @@ const readImage = (dir, file) => {
     });
 }
 
-readImage("./data", "02_Trident_Chewy Stoll_Loop_H264.mp4")
+readImage("./data", "BLOTTER-FINAL1.jpg")
   .then(addAndPinData).then((imgHash) => {
     metadata.image = ipfsURL + imgHash
     return JSON.stringify(metadata)
