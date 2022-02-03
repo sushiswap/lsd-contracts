@@ -7,7 +7,7 @@ const ipfsURL = 'ipfs://ipfs/'
 var ipfs = client.create({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' })
 
 const metadata = {
-	"name": "Bad Trip",
+	"name": "B̷̨̭̏ͅa̶͍̭͋͘ḋ̶̥͎̃ ̶̙̆̉Ṱ̵̨̀r̸̢̒̈̿͜ï̴̡̦̗p̸̙̦̈́͛͝",
 	"description": "The Bad Trip NFT is introduced as a celebratory piece for the announcement and and upcoming release of Sushi's Trident AMM. This NFT can be redeemed for a 19cm x 19cm 900 tab piece of blotter paper with this Chewy Stoll artwork printed on it.",
 	"image": "",
 	"properties": {

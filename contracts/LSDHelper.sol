@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
@@ -23,6 +23,7 @@ interface IERC20 {
 contract ERC1155_ is ERC1155 {
   bytes32 public immutable DOMAIN_SEPARATOR;
   mapping(address => uint256) public nonces;
+  string public name = "Bad Trip";
 
   constructor(address to, string memory _uri)
   ERC1155(
