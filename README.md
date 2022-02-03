@@ -1,3 +1,9 @@
+This is a library for managing the [Bad Trip](https://opensea.io/assets/0x39194ac8ccf9ac5746984e82954ee9ab24a865ec/0) NFT.
+
+Deployed versions can be found here -> [LSDHelper.sol](https://etherscan.io/address/0x7187c898d9e204859DC096007B0baDaA8818C682#readContract), [ERC1155](https://etherscan.io/address/0x39194ac8ccf9ac5746984e82954ee9ab24a865ec))
+
+Artwork can be found on IPFS here -> [Metadata](https://gateway.ipfs.io/ipfs/Qmc64Fwb1ZHF4HaFzB5mpCCjCK4CsDMLXxxFE1Rxoy4a5m), [Artwork](https://gateway.ipfs.io/ipfs/QmYrF3BqD2JzFv7An94EXrjQQPDFgyt5k9f6nWmxXgJVHV)
+
 # Advanced Sample Hardhat Project
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
