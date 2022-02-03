@@ -32,7 +32,7 @@ describe("LSDHelper", function () {
 
     // redeem ERC20 for NFT
     await lsd.approve(lsdHelper.address, balance_before_redemption);
-    await lsdHelper.redeem();
+    await lsdHelper.redeem(1);
 
     const balance_after_actual = await lsd.balanceOf(LSD_HOLDER_ADDRESS);
 
@@ -40,7 +40,6 @@ describe("LSDHelper", function () {
     expect(balance_after_expected).to.equal(balance_after_actual);
 
     const burn_balance_actual = await lsd.balanceOf(BURN_ADDRESS);
-    console.log(burn_balance_actual);
     const burn_balance_expected = balance_after_actual;
     expect(burn_balance_actual).to.equal(balance_before_redemption.sub(balance_after_expected));
 

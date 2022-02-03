@@ -32,9 +32,10 @@ describe("LSDHelper", function () {
     this.erc1155 = await ERC1155.attach(address);
   });
   it("Redeem ERC20 for NFT w/ permit and check balances", async function () {
-    const AMOUNT = getBigNumber(10);
+    const VALUE = getBigNumber(10);
     const EXPECTED_BALANCE = getBigNumber(290);
     const TOKEN_ID = "0";
+    const AMOUNT = BigNumber.from(10);
 
     // Signing permit for $LSD token
     const deadline = (await this.alice.provider._internalBlockNumber).respTime + 10000
@@ -43,13 +44,13 @@ describe("LSDHelper", function () {
         this.erc20,
         this.alice,
         this.lsdHelper.address,
-        AMOUNT,
+        VALUE,
         deadline
     );
     const erc20Sig = ethers.utils.splitSignature(signedPermitERC20)
     
     // Redeem the $LSD token for NFT
-    await this.lsdHelper.permitAndRedeem(this.alice.address, this.lsdHelper.address, AMOUNT, deadline, erc20Sig.v, erc20Sig.r, erc20Sig.s);
+    await this.lsdHelper.permitAndRedeem(this.alice.address, this.lsdHelper.address, VALUE, deadline, erc20Sig.v, erc20Sig.r, erc20Sig.s, AMOUNT);
 
     // Check that Alice's ERC1155 balance has increased
     expect(await (await this.erc1155.balanceOf(this.alice.address, TOKEN_ID)).toNumber()).to.equal(10);

@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
@@ -80,14 +80,13 @@ contract LSDHelper is ERC1155Receiver {
     nft = new ERC1155_(address(this), _uri);
   }
 
-  function redeem() public {
+  function redeem(uint256 amount) public {
     uint256 balance = token.balanceOf(msg.sender) / 10**18;
-    uint256 allowance = token.allowance(msg.sender, address(this)) / 10**18;
-    if(allowance < balance) balance = allowance;
+    require(amount <= balance, "Amount of redemption token less than token balance");
     require(balance > 0, "Balance of redemption token less than 1");
-    token.transferFrom(msg.sender, BURN_ADDRESS, balance * 10**18);
-    nft.safeTransferFrom(address(this), msg.sender, 0, balance, "");
-    emit PhysicalRedemption(msg.sender, balance);
+    token.transferFrom(msg.sender, BURN_ADDRESS, amount * 10**18);
+    nft.safeTransferFrom(address(this), msg.sender, 0, amount, "");
+    emit PhysicalRedemption(msg.sender, amount);
   }
 
   function permitAndRedeem(
@@ -97,10 +96,11 @@ contract LSDHelper is ERC1155Receiver {
         uint256 deadline,
         uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        uint256 amount
     ) external {
       token.permit(owner, spender, value, deadline, v, r, s);
-      redeem();
+      redeem(amount);
   }
 
   function onERC1155Received(
